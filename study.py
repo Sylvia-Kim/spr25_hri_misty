@@ -4,9 +4,9 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import requests
-from io import BytesIO
 import threading, websocket, sys, os, time
+from io import BytesIO
+import requests
 
 # Add local Python-SDK path for MistyPy
 SDK_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'Python-SDK'))
@@ -70,32 +70,26 @@ class MistyGUI:
         global misty
         misty = Robot(ip_address)
 
-        # -----------------------
         # Section 1: Timer
-        # -----------------------
-        tk.Label(self.root, text="Timer", font=("Arial", 20)).pack(pady=(10, 0))
+        tk.Label(self.root, text="Timer", font=("Arial", 20)).pack(pady=(10,0))
         self.time_elapsed = 0
         self.running = False
         self.time_display = tk.Label(self.root, text="0:00", font=("Arial", 18))
         self.time_display.pack()
-        tf = tk.Frame(self.root); tf.pack(pady=5)
-        tk.Button(tf, text="Start", command=self.start).grid(row=0, column=0, padx=5)
-        tk.Button(tf, text="Stop",  command=self.stop).grid(row=0, column=1, padx=5)
-        tk.Button(tf, text="Reset", command=self.reset).grid(row=0, column=2, padx=5)
+        tframe = tk.Frame(self.root); tframe.pack(pady=5)
+        tk.Button(tframe, text="Start", command=self.start).grid(row=0, column=0, padx=5)
+        tk.Button(tframe, text="Stop", command=self.stop).grid(row=0, column=1, padx=5)
+        tk.Button(tframe, text="Reset", command=self.reset).grid(row=0, column=2, padx=5)
         self.update_time()
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
 
-        # -----------------------
         # Section 2: Speech Control Panel
-        # -----------------------
         tk.Label(self.root, text="Speech Control Panel", font=("Arial", 18)).pack()
-        ef = tk.Frame(self.root); ef.pack(pady=5)
-        self.textbox = tk.Entry(ef, width=60, font=("Arial", 10))
+        eframe = tk.Frame(self.root); eframe.pack(pady=5)
+        self.textbox = tk.Entry(eframe, width=60, font=("Arial", 10))
         self.textbox.grid(row=0, column=0, padx=5)
-        tk.Button(ef, text="Speak", command=lambda: self.speak(self.textbox.get(), self.exp_selector.get()))\
-            .grid(row=0, column=1, padx=5)
-        tk.Button(ef, text="Clear", command=self.text_erase)\
-            .grid(row=0, column=2, padx=5)
+        tk.Button(eframe, text="Speak", command=self.on_speak).grid(row=0, column=1, padx=5)
+        tk.Button(eframe, text="Clear", command=self.text_erase).grid(row=0, column=2, padx=5)
 
         # Expression selector
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
@@ -104,67 +98,69 @@ class MistyGUI:
         self.exp_selector.set("e_DefaultContent.jpg")
         self.exp_selector.pack(pady=5)
 
-        # Scripted intro/outro
+        # Scripted Messages
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Scripted Messages", font=("Arial", 14)).pack(pady=(0,5))
         sf = tk.Frame(self.root); sf.pack(pady=5)
-        tk.Button(sf, text="Intro", width=30, bg="#ade8f4", \
-                  command=lambda: self.speak(INTRO_MESSAGE, self.exp_selector.get()))\
-            .grid(row=0, column=0, padx=5, pady=2)
-        tk.Button(sf, text="Outro", width=30, bg="#ffc8dd", \
-                  command=lambda: self.speak(OUTRO_MESSAGE, self.exp_selector.get()))\
-            .grid(row=0, column=1, padx=5, pady=2)
+        tk.Button(sf, text="Intro", width=30, bg="#ade8f4",
+                  command=lambda: self.queue_speech(INTRO_MESSAGE)).grid(row=0, column=0, padx=5, pady=2)
+        tk.Button(sf, text="Outro", width=30, bg="#ffc8dd",
+                  command=lambda: self.queue_speech(OUTRO_MESSAGE)).grid(row=0, column=1, padx=5, pady=2)
 
         # Narrative phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Narrative Phrases", font=("Arial", 14)).pack(pady=(0,5))
         nf = tk.Frame(self.root); nf.pack(pady=5)
         for idx, msg in enumerate(NARRATIVE_PHRASES, 1):
-            tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80, \
-                      command=lambda m=msg: self.speak(m, self.exp_selector.get()))\
-                .pack(pady=2)
+            tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80,
+                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
 
         # Coaching phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Coaching Phrases", font=("Arial", 14)).pack(pady=(0,5))
         cf = tk.Frame(self.root); cf.pack(pady=5)
         for idx, msg in enumerate(COACHING_PHRASES, 1):
-            tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80, \
-                      command=lambda m=msg: self.speak(m, self.exp_selector.get()))\
-                .pack(pady=2)
+            tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80,
+                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
 
         # Generic phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Generic Phrases", font=("Arial", 14)).pack(pady=(0,5))
         gf = tk.Frame(self.root); gf.pack(pady=5)
         for idx, msg in enumerate(GENERIC_PHRASES, 1):
-            tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80, \
-                      command=lambda m=msg: self.speak(m, self.exp_selector.get()))\
-                .pack(pady=2)
+            tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80,
+                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
 
-        # -----------------------
         # Section 3: Action Control Panel
-        # -----------------------
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
         tk.Label(self.root, text="Action Control Panel", font=("Arial", 18)).pack(pady=(0,5))
         af = tk.Frame(self.root); af.pack(pady=5)
-        tk.Button(af, text="Move Head 1", \
-                  command=lambda: self.action("move_head_1"))\
-            .grid(row=0, column=0, padx=5)
-        # TODO: add more action buttons here
+        tk.Button(af, text="Move Head 1",
+                  command=lambda: self.queue_action("move_head_1")).grid(row=0, column=0, padx=5)
 
         self.root.mainloop()
 
-    def speak(self, phrase, expression=None):
-        # Display facial expression asset if provided
-        if expression:
-            # assumes expressions are uploaded asset names
+    def on_speak(self):
+        text = self.textbox.get()
+        self.queue_speech(text)
+
+    def queue_speech(self, phrase):
+        expression = self.exp_selector.get()
+        threading.Thread(target=self._robot_speak, args=(phrase, expression), daemon=True).start()
+
+    def _robot_speak(self, phrase, expression):
+        # 1) Display chosen expression
+        try:
             misty.display_image(expression, expression, 0, 0)
-        # Speak the phrase
+        except Exception as e:
+            print(f"Failed to display expression {expression}: {e}")
+        # 2) Speak the phrase
         misty.speak(phrase)
 
-    def action(self, phrase):
-        print(f"Action: {phrase}")
+    def queue_action(self, phrase):
+        threading.Thread(target=self._robot_action, args=(phrase,), daemon=True).start()
+
+    def _robot_action(self, phrase):
         if phrase == "move_head_1":
             misty.move_head(-15, 0, 0, 80)
 
