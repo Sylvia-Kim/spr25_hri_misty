@@ -1,0 +1,13 @@
+deepgram-sdk
+ffmpeg-python
+google-cloud-storage
+google-generativeai
+mutagen
+openai
+pillow
+python-dotenv
+requests
+urllib3==1.26.20
+websocket-client==0.57.0
+websockets
+yapf
