@@ -1,5 +1,4 @@
-# lab_4_misty_woz_gui.py
-# How to run this file: python3 lab_4_misty_woz_gui.py 192.168.0.206
+# How to run this file: python3 study.py <Misty IP Address>
 
 import tkinter as tk
 from tkinter import ttk
@@ -16,6 +15,9 @@ if SDK_PATH not in sys.path:
 from mistyPy.Robot import Robot
 from mistyPy.Events import Events
 
+# Default facial expression
+DEFAULT_EXPRESSION = "e_DefaultContent.jpg"
+
 # Scripted intro and outro messages
 INTRO_MESSAGE = (
     "Hello and welcome! Thank you for participating in our study. "
@@ -26,37 +28,21 @@ OUTRO_MESSAGE = (
     "Please proceed to complete any remaining surveys."
 )
 
-# Condition-specific phrases
+# Condition-specific phrases with associated expressions
 NARRATIVE_PHRASES = [
-    "We’re on a mission—defuse the bomb before time runs out!",
-    "Great job! Only a few puzzles left on our quest.",
-    "The countdown’s ticking—let’s push forward, teammate!",
+    ("We’re on a mission—defuse the bomb before time runs out!", "e_Terror.jpg"),
+    ("Great job! Only a few puzzles left on our quest.", "e_Joy.jpg"),
+    ("The countdown’s ticking—let’s push forward, teammate!", "e_Fear.jpg"),
 ]
 COACHING_PHRASES = [
-    "You’re doing great, keep going at your own pace.",
-    "Remember to breathe; you’ve got this!",
-    "Nice work—stay focused and you’ll finish soon.",
+    ("You’re doing great, keep going at your own pace.", "e_ContentLeft.jpg"),
+    ("Remember to breathe; you’ve got this!", "e_ApprehensionConcerned.jpg"),
+    ("Nice work—stay focused and you’ll finish soon.", "e_JoyGoofy.jpg"),
 ]
-# Generic phrases for ad-hoc encouragement
 GENERIC_PHRASES = [
-    "Keep up the great work!",
-    "Feel free to take a short break if needed.",
-    "Stay relaxed and focused.",
-]
-# Available facial expressions (asset names on the robot)
-EXPRESSIONS = [
-    "e_Admiration.jpg", "e_Aggressiveness.jpg", "e_Amazement.jpg", "e_Anger.jpg",
-    "e_ApprehensionConcerned.jpg", "e_Contempt.jpg", "e_ContentLeft.jpg", "e_ContentRight.jpg",
-    "e_DefaultContent.jpg", "e_Disgust.jpg", "e_Disoriented.jpg", "e_EcstacyHilarious.jpg",
-    "e_EcstacyStarryEyed.jpg", "e_Fear.jpg", "e_Grief.jpg", "e_Joy.jpg", "e_Joy2.jpg",
-    "e_JoyGoofy.jpg", "e_JoyGoofy2.jpg", "e_JoyGoofy3.jpg", "e_Love.jpg",
-    "e_Rage.jpg", "e_Rage2.jpg", "e_Rage3.jpg", "e_Rage4.jpg",
-    "e_RemorseShame.jpg", "e_Sadness.jpg", "e_Sleeping.jpg", "e_SleepingZZZ.jpg",
-    "e_Sleepy.jpg", "e_Sleepy2.jpg", "e_Sleepy3.jpg", "e_Sleepy4.jpg",
-    "e_Surprise.jpg", "e_SystemBlinkLarge.jpg", "e_SystemBlinkStandard.jpg",
-    "e_SystemCamera.jpg", "e_Terror.jpg", "e_Terror2.jpg",
-    "e_TerrorLeft.jpg", "e_TerrorRight.jpg", "e_SystemBlackScreen.jpg",
-    "e_SystemFlash.jpg", "e_SystemGearPrompt.jpg", "e_SystemLogoPrompt.jpg",
+    ("Keep up the great work!", "e_Joy2.jpg"),
+    ("Feel free to take a short break if needed.", "e_Sleepy.jpg"),
+    ("Stay relaxed and focused.", "e_DefaultContent.jpg"),
 ]
 
 class MistyGUI:
@@ -91,45 +77,38 @@ class MistyGUI:
         tk.Button(eframe, text="Speak", command=self.on_speak).grid(row=0, column=1, padx=5)
         tk.Button(eframe, text="Clear", command=self.text_erase).grid(row=0, column=2, padx=5)
 
-        # Expression selector
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Select Facial Expression", font=("Arial", 14)).pack(pady=(0,5))
-        self.exp_selector = ttk.Combobox(self.root, values=EXPRESSIONS, state="readonly", width=40)
-        self.exp_selector.set("e_DefaultContent.jpg")
-        self.exp_selector.pack(pady=5)
-
         # Scripted Messages
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Scripted Messages", font=("Arial", 14)).pack(pady=(0,5))
         sf = tk.Frame(self.root); sf.pack(pady=5)
         tk.Button(sf, text="Intro", width=30, bg="#ade8f4",
-                  command=lambda: self.queue_speech(INTRO_MESSAGE)).grid(row=0, column=0, padx=5, pady=2)
+                  command=lambda: self.queue_speech(INTRO_MESSAGE, DEFAULT_EXPRESSION)).grid(row=0, column=0, padx=5, pady=2)
         tk.Button(sf, text="Outro", width=30, bg="#ffc8dd",
-                  command=lambda: self.queue_speech(OUTRO_MESSAGE)).grid(row=0, column=1, padx=5, pady=2)
+                  command=lambda: self.queue_speech(OUTRO_MESSAGE, DEFAULT_EXPRESSION)).grid(row=0, column=1, padx=5, pady=2)
 
         # Narrative phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Narrative Phrases", font=("Arial", 14)).pack(pady=(0,5))
         nf = tk.Frame(self.root); nf.pack(pady=5)
-        for idx, msg in enumerate(NARRATIVE_PHRASES, 1):
+        for idx, (msg, exp) in enumerate(NARRATIVE_PHRASES, 1):
             tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
+                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
 
         # Coaching phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Coaching Phrases", font=("Arial", 14)).pack(pady=(0,5))
         cf = tk.Frame(self.root); cf.pack(pady=5)
-        for idx, msg in enumerate(COACHING_PHRASES, 1):
+        for idx, (msg, exp) in enumerate(COACHING_PHRASES, 1):
             tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
+                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
 
         # Generic phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Generic Phrases", font=("Arial", 14)).pack(pady=(0,5))
         gf = tk.Frame(self.root); gf.pack(pady=5)
-        for idx, msg in enumerate(GENERIC_PHRASES, 1):
+        for idx, (msg, exp) in enumerate(GENERIC_PHRASES, 1):
             tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg: self.queue_speech(m)).pack(pady=2)
+                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
 
         # Section 3: Action Control Panel
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
@@ -142,10 +121,10 @@ class MistyGUI:
 
     def on_speak(self):
         text = self.textbox.get()
-        self.queue_speech(text)
+        if text:
+            self.queue_speech(text, DEFAULT_EXPRESSION)
 
-    def queue_speech(self, phrase):
-        expression = self.exp_selector.get()
+    def queue_speech(self, phrase, expression):
         threading.Thread(target=self._robot_speak, args=(phrase, expression), daemon=True).start()
 
     def _robot_speak(self, phrase, expression):
