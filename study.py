@@ -1,5 +1,4 @@
-# lab_4_misty_woz_gui.py
-# How to run this file: python3 study.py <Misty IP Address>
+# How to run this file: python3 study.py 192.168.0.206
 
 import tkinter as tk
 from tkinter import ttk
