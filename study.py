@@ -1,4 +1,4 @@
-# How to run this file: python3 study.py <Misty IP Address>
+# How to run this file: python3 study.py 192.168.0.206
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,20 +30,20 @@ OUTRO_MESSAGE = (
 
 # Condition-specific phrases with associated expressions
 NARRATIVE_PHRASES = [
-    ("We’re on a mission—defuse the bomb before time runs out!", "e_Terror.jpg"),
+    ("We’re on a mission—defuse the bomb before time runs out!", "e_Fear.jpg"),
     ("Great job! Only a few puzzles left on our quest.", "e_Joy.jpg"),
-    ("The countdown’s ticking—let’s push forward, teammate!", "e_Fear.jpg"),
+    ("The countdown’s ticking—let’s push forward, teammate!", "e_Surprise.jpg"),
 ]
 COACHING_PHRASES = [
-    ("You’re doing great, keep going at your own pace.", "e_ContentLeft.jpg"),
-    ("Remember to breathe; you’ve got this!", "e_ApprehensionConcerned.jpg"),
-    ("Nice work—stay focused and you’ll finish soon.", "e_JoyGoofy.jpg"),
+    ("You’re doing great, keep going at your own pace.", "e_Content.jpg"),
+    ("Remember to breathe; you’ve got this!", "e_Admiration.jpg"),
+    ("Nice work—stay focused and you’ll finish soon.", "e_Joy.jpg"),
 ]
 GENERIC_PHRASES = [
     ("Keep up the great work!", "e_Joy2.jpg"),
     ("Feel free to take a short break if needed.", "e_Sleepy.jpg"),
     ("Stay relaxed and focused.", "e_DefaultContent.jpg"),
-]
+]/
 
 class MistyGUI:
     def __init__(self):
