@@ -1,4 +1,4 @@
-# How to run this file: python3 study.py 192.168.0.206
+# How to run this file: python3 study.py <Misty IP Address>
 
 import tkinter as tk
 from tkinter import ttk
@@ -32,54 +32,62 @@ OUTRO_MESSAGE = (
     "Please proceed to complete any remaining surveys."
 )
 
-# Condition-specific phrases with associated expressions and movement lists
+# Instruction phrases tailored to KenKen puzzle context
+# Narrative: storyteller tone
 NARRATIVE_PHRASES = [
     (
-        "We’re on a mission—defuse the bomb before time runs out!",
-        "e_Fear.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+        "In KenKen, you’ll weave numbers 1 through N into each row and column, never repeating a digit. "
+        "Tackle each cage’s arithmetic challenge to reveal the path forward.",
+        "e_DefaultContent.jpg",
+        [("move_arms", 0, 0), ("move_head", 10, 0, 0)]
     ),
     (
-        "Great job! Only a few puzzles left on our quest.",
+        "As you journey through the grid, pause to double-check your row totals before venturing forth.",
         "e_Joy.jpg",
+        [("move_arms", 50, -50), ("move_head", 0, 20, 0)]
+    ),
+    (
+        "Should you find yourself at an impasse, let your eyes wander to the tiniest cages—they often hold the key.",
+        "e_Admiration.jpg",
+        [("move_arms", -50, 50), ("move_head", -10, 0, 0)]
+    ),
+    (
+        "Well done, brave solver—keep watch on the last column you’ve conquered to ensure it remains intact.",
+        "e_Content.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 10)]
+    ),
+]
+
+# Coaching: high-school football coach tone
+COACHING_PHRASES = [
+    (
+        "Alright team, line up those numbers—add, subtract, multiply, or divide to score in each cage! "
+        "You got 5 minutes, let’s keep those eyes sharp.",
+        "e_Content.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 10, 0)]
+    ),
+    (
+        "Great pace, champs—double-check row totals before you blitz to the next play!",
+        "e_Joy2.jpg",
         [("move_arms", 70, -110), ("move_head", 0, 0, 0)]
     ),
     (
-        "The countdown’s ticking—let’s push forward, teammate!",
-        "e_Surprise.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 45, 0)]
-    ),
-]
-COACHING_PHRASES = [
-    (
-        "You’re doing great, keep going at your own pace.",
-        "e_Content.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
-    ),
-    (
-        "Remember to breathe; you’ve got this!",
-        "e_Admiration.jpg",
+        "If you’re stuck, scan each cage like a linebacker reading the offense—start with the smallest numbers!",
+        "e_Fear.jpg",
         [("move_arms", -110, 70), ("move_head", 0, 0, 0)]
     ),
     (
-        "Nice work—stay focused and you’ll finish soon.",
-        "e_Joy.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0), ("change_led", 125, 125, 125)]
+        "Nice work! Keep your eyes on that last column you tackled—don’t let it sneak past you!",
+        "e_Surprise.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
     ),
 ]
+
+# Generic: neutral instruction
 GENERIC_PHRASES = [
     (
-        "Keep up the great work!",
-        "e_Joy2.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
-    ),
-    (
-        "Feel free to take a short break if needed.",
-        "e_Sleepy.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
-    ),
-    (
-        "Stay relaxed and focused.",
+        "Enjoy solving your KenKen at your own pace. "
+        "Remember: no number repeats in any row or column, and each cage has its arithmetic goal.",
         "e_DefaultContent.jpg",
         [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
     ),
@@ -128,7 +136,7 @@ class MistyGUI:
 
         # Narrative phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Narrative Phrases", font=("Arial", 14)).pack(pady=(0,5))
+        tk.Label(self.root, text="Narrative Instruction", font=("Arial", 14)).pack(pady=(0,5))
         nf = tk.Frame(self.root); nf.pack(pady=5)
         for idx, (msg, exp, moves) in enumerate(NARRATIVE_PHRASES, 1):
             tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80,
@@ -136,7 +144,7 @@ class MistyGUI:
 
         # Coaching phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Coaching Phrases", font=("Arial", 14)).pack(pady=(0,5))
+        tk.Label(self.root, text="Coaching Instruction", font=("Arial", 14)).pack(pady=(0,5))
         cf = tk.Frame(self.root); cf.pack(pady=5)
         for idx, (msg, exp, moves) in enumerate(COACHING_PHRASES, 1):
             tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80,
@@ -144,7 +152,7 @@ class MistyGUI:
 
         # Generic phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Generic Phrases", font=("Arial", 14)).pack(pady=(0,5))
+        tk.Label(self.root, text="Generic Instruction", font=("Arial", 14)).pack(pady=(0,5))
         gf = tk.Frame(self.root); gf.pack(pady=5)
         for idx, (msg, exp, moves) in enumerate(GENERIC_PHRASES, 1):
             tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80,
