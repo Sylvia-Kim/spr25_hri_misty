@@ -1,4 +1,5 @@
-# How to run this file: python3 study.py 192.168.0.206
+# lab_4_misty_woz_gui.py
+# How to run this file: python3 study.py <Misty IP Address>
 
 import tkinter as tk
 from tkinter import ttk
@@ -15,8 +16,12 @@ if SDK_PATH not in sys.path:
 from mistyPy.Robot import Robot
 from mistyPy.Events import Events
 
-# Default facial expression
+# Default facial expression and movements (arms and head)
 DEFAULT_EXPRESSION = "e_DefaultContent.jpg"
+DEFAULT_MOVEMENTS = [
+    ("move_arms", 0, 0),
+    ("move_head", 0, 0, 0)
+]
 
 # Scripted intro and outro messages
 INTRO_MESSAGE = (
@@ -28,22 +33,58 @@ OUTRO_MESSAGE = (
     "Please proceed to complete any remaining surveys."
 )
 
-# Condition-specific phrases with associated expressions
+# Condition-specific phrases with associated expressions and movement lists
 NARRATIVE_PHRASES = [
-    ("We’re on a mission—defuse the bomb before time runs out!", "e_Fear.jpg"),
-    ("Great job! Only a few puzzles left on our quest.", "e_Joy.jpg"),
-    ("The countdown’s ticking—let’s push forward, teammate!", "e_Surprise.jpg"),
+    (
+        "We’re on a mission—defuse the bomb before time runs out!",
+        "e_Fear.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "Great job! Only a few puzzles left on our quest.",
+        "e_Joy.jpg",
+        [("move_arms", 70, -110), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "The countdown’s ticking—let’s push forward, teammate!",
+        "e_Surprise.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 45, 0)]
+    ),
 ]
 COACHING_PHRASES = [
-    ("You’re doing great, keep going at your own pace.", "e_Content.jpg"),
-    ("Remember to breathe; you’ve got this!", "e_Admiration.jpg"),
-    ("Nice work—stay focused and you’ll finish soon.", "e_Joy.jpg"),
+    (
+        "You’re doing great, keep going at your own pace.",
+        "e_Content.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "Remember to breathe; you’ve got this!",
+        "e_Admiration.jpg",
+        [("move_arms", -110, 70), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "Nice work—stay focused and you’ll finish soon.",
+        "e_Joy.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0), ("change_led", 125, 125, 125)]
+    ),
 ]
 GENERIC_PHRASES = [
-    ("Keep up the great work!", "e_Joy2.jpg"),
-    ("Feel free to take a short break if needed.", "e_Sleepy.jpg"),
-    ("Stay relaxed and focused.", "e_DefaultContent.jpg"),
-]/
+    (
+        "Keep up the great work!",
+        "e_Joy2.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "Feel free to take a short break if needed.",
+        "e_Sleepy.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+    (
+        "Stay relaxed and focused.",
+        "e_DefaultContent.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+]
 
 class MistyGUI:
     def __init__(self):
@@ -82,33 +123,33 @@ class MistyGUI:
         tk.Label(self.root, text="Scripted Messages", font=("Arial", 14)).pack(pady=(0,5))
         sf = tk.Frame(self.root); sf.pack(pady=5)
         tk.Button(sf, text="Intro", width=30, bg="#ade8f4",
-                  command=lambda: self.queue_speech(INTRO_MESSAGE, DEFAULT_EXPRESSION)).grid(row=0, column=0, padx=5, pady=2)
+                  command=lambda: self.queue_speech(INTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=0, padx=5, pady=2)
         tk.Button(sf, text="Outro", width=30, bg="#ffc8dd",
-                  command=lambda: self.queue_speech(OUTRO_MESSAGE, DEFAULT_EXPRESSION)).grid(row=0, column=1, padx=5, pady=2)
+                  command=lambda: self.queue_speech(OUTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=1, padx=5, pady=2)
 
         # Narrative phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Narrative Phrases", font=("Arial", 14)).pack(pady=(0,5))
         nf = tk.Frame(self.root); nf.pack(pady=5)
-        for idx, (msg, exp) in enumerate(NARRATIVE_PHRASES, 1):
+        for idx, (msg, exp, moves) in enumerate(NARRATIVE_PHRASES, 1):
             tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
+                      command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
 
         # Coaching phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Coaching Phrases", font=("Arial", 14)).pack(pady=(0,5))
         cf = tk.Frame(self.root); cf.pack(pady=5)
-        for idx, (msg, exp) in enumerate(COACHING_PHRASES, 1):
+        for idx, (msg, exp, moves) in enumerate(COACHING_PHRASES, 1):
             tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
+                      command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
 
         # Generic phrases
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
         tk.Label(self.root, text="Generic Phrases", font=("Arial", 14)).pack(pady=(0,5))
         gf = tk.Frame(self.root); gf.pack(pady=5)
-        for idx, (msg, exp) in enumerate(GENERIC_PHRASES, 1):
+        for idx, (msg, exp, moves) in enumerate(GENERIC_PHRASES, 1):
             tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg, e=exp: self.queue_speech(m, e)).pack(pady=2)
+                      command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
 
         # Section 3: Action Control Panel
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
@@ -122,18 +163,25 @@ class MistyGUI:
     def on_speak(self):
         text = self.textbox.get()
         if text:
-            self.queue_speech(text, DEFAULT_EXPRESSION)
+            self.queue_speech(text, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)
 
-    def queue_speech(self, phrase, expression):
-        threading.Thread(target=self._robot_speak, args=(phrase, expression), daemon=True).start()
+    def queue_speech(self, phrase, expression, movements):
+        threading.Thread(target=self._robot_speak, args=(phrase, expression, movements), daemon=True).start()
 
-    def _robot_speak(self, phrase, expression):
-        # 1) Display chosen expression
+    def _robot_speak(self, phrase, expression, movements):
+        # Display expression
         try:
             misty.display_image(expression, expression, 0, 0)
         except Exception as e:
             print(f"Failed to display expression {expression}: {e}")
-        # 2) Speak the phrase
+        # Execute each movement (arms and head always)
+        for mv in movements:
+            try:
+                action, *args = mv
+                getattr(misty, action)(*args)
+            except Exception as e:
+                print(f"Failed to execute movement {mv}: {e}")
+        # Speak the phrase
         misty.speak(phrase)
 
     def queue_action(self, phrase):
@@ -167,7 +215,7 @@ class MistyGUI:
 # Run the GUI
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 lab_4_misty_woz_gui.py <Misty IP Address>")
+        print("Usage: python3 study.py <Misty IP Address>")
         sys.exit(1)
     ip_address = sys.argv[1]
     MistyGUI()
