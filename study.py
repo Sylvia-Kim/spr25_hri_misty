@@ -61,24 +61,29 @@ NARRATIVE_PHRASES = [
 # Coaching: high-school football coach tone
 COACHING_PHRASES = [
     (
-        "Alright team, line up those numbers—add, subtract, multiply, or divide to score in each cage! "
-        "You got 5 minutes, let’s keep those eyes sharp.",
+        "Alright, line up those numbers—add, subtract, multiply, or divide to score in each cage! "
+        "You got 5 more minutes, let’s keep those eyes sharp.",
         "e_Content.jpg",
         [("move_arms", 0, 0), ("move_head", 0, 10, 0)]
     ),
     (
-        "Great pace, champs—double-check row totals before you blitz to the next play!",
+        "Nice flow! Isn’t it satisfying when the numbers click into place?",
         "e_Joy2.jpg",
         [("move_arms", 70, -110), ("move_head", 0, 0, 0)]
     ),
     (
-        "If you’re stuck, scan each cage like a linebacker reading the offense—start with the smallest numbers!",
+        "If you’re stuck, scan each cage like a linebacker reading the offense, start with the smallest numbers!",
         "e_Fear.jpg",
         [("move_arms", -110, 70), ("move_head", 0, 0, 0)]
     ),
     (
         "Nice work! Keep your eyes on that last column you tackled—don’t let it sneak past you!",
         "e_Surprise.jpg",
+        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+    ),
+     (
+        "Stuck? Try pencilling possibilities. 1 or 4 can’t sit next to another 4.",
+        "e_Joy2.jpg",
         [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
     ),
 ]
