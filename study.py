@@ -3,104 +3,67 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import threading, websocket, sys, os, time
-from io import BytesIO
-import requests
-
-# Add local Python-SDK path for MistyPy
-SDK_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'Python-SDK'))
-if SDK_PATH not in sys.path:
-    sys.path.insert(0, SDK_PATH)
-
+import threading, sys, os, time
 from mistyPy.Robot import Robot
 from mistyPy.Events import Events
 
 # Default facial expression and movements (arms and head)
 DEFAULT_EXPRESSION = "e_DefaultContent.jpg"
+# Always move arms and head (nod before speaking)
 DEFAULT_MOVEMENTS = [
     ("move_arms", 0, 0),
     ("move_head", 0, 0, 0)
 ]
 
-# Scripted intro and outro messages
-INTRO_MESSAGE = (
-    "Hello and welcome! Thank you for participating in our study. "
-    "I will provide guidance and encouragement throughout the session."
+# Scripted intro, instruction, and outro messages
+INTRO_MESSAGE = "Hello! Let's solve a fun number puzzle together."
+INSTRUCTION_MESSAGE = (
+    "To play KenKen, pick a number and place it in each small box so it matches the number in the colored area. "
+    "Remember, you can't use the same number twice in any row or column."
 )
-OUTRO_MESSAGE = (
-    "This concludes our session. Thank you for your time and effort! "
-    "Please proceed to complete any remaining surveys."
-)
+OUTRO_MESSAGE = "You did it! Thanks for playing with me today."
 
 # Instruction phrases tailored to KenKen puzzle context
-# Narrative: storyteller tone
+# Narrative style: encouraging and clear, 3 phases
 NARRATIVE_PHRASES = [
     (
-        "In KenKen, you’ll weave numbers 1 through N into each row and column, never repeating a digit. "
-        "Tackle each cage’s arithmetic challenge to reveal the path forward.",
-        "e_DefaultContent.jpg",
-        [("move_arms", 0, 0), ("move_head", 10, 0, 0)]
-    ),
-    (
-        "As you journey through the grid, pause to double-check your row totals before venturing forth.",
-        "e_Joy.jpg",
-        [("move_arms", 50, -50), ("move_head", 0, 20, 0)]
-    ),
-    (
-        "Should you find yourself at an impasse, let your eyes wander to the tiniest cages—they often hold the key.",
-        "e_Admiration.jpg",
-        [("move_arms", -50, 50), ("move_head", -10, 0, 0)]
-    ),
-    (
-        "Well done, brave solver—keep watch on the last column you’ve conquered to ensure it remains intact.",
+        "Welcome! Look at the outlined cages and put the right number in each box.",
         "e_Content.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 10)]
+        DEFAULT_MOVEMENTS
+    ),
+    (
+        "Great job! Keep going, you’re filling in the boxes one by one.",
+        "e_Joy.jpg",
+        DEFAULT_MOVEMENTS
+    ),
+    (
+        "Awesome! Just a few more to finish your puzzle.",
+        "e_Admiration.jpg",
+        DEFAULT_MOVEMENTS
     ),
 ]
 
-# Coaching: high-school football coach tone
+# Coaching style: stern, focused on completion, 3 phases
 COACHING_PHRASES = [
     (
-        "Alright, line up those numbers—add, subtract, multiply, or divide to score in each cage! "
-        "You got 5 more minutes, let’s keep those eyes sharp.",
+        "Place numbers in each box. No hesitation.",
         "e_Content.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 10, 0)]
+        DEFAULT_MOVEMENTS
     ),
     (
-        "Nice flow! Isn’t it satisfying when the numbers click into place?",
-        "e_Joy2.jpg",
-        [("move_arms", 70, -110), ("move_head", 0, 0, 0)]
+        "Maintain momentum. Fill the next boxes without pausing.",
+        "e_Content.jpg",
+        DEFAULT_MOVEMENTS
     ),
     (
-        "If you’re stuck, scan each cage like a linebacker reading the offense, start with the smallest numbers!",
-        "e_Fear.jpg",
-        [("move_arms", -110, 70), ("move_head", 0, 0, 0)]
-    ),
-    (
-        "Nice work! Keep your eyes on that last column you tackled—don’t let it sneak past you!",
-        "e_Surprise.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
-    ),
-     (
-        "Stuck? Try pencilling possibilities. 1 or 4 can’t sit next to another 4.",
-        "e_Joy2.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
-    ),
-]
-
-# Generic: neutral instruction
-GENERIC_PHRASES = [
-    (
-        "Enjoy solving your KenKen at your own pace. "
-        "Remember: no number repeats in any row or column, and each cage has its arithmetic goal.",
-        "e_DefaultContent.jpg",
-        [("move_arms", 0, 0), ("move_head", 0, 0, 0)]
+        "Complete the puzzle. Finish all boxes immediately.",
+        "e_Content.jpg",
+        DEFAULT_MOVEMENTS
     ),
 ]
 
 class MistyGUI:
     def __init__(self):
-        # Create main window
         self.root = tk.Tk()
         self.root.geometry("900x900")
         self.root.title("Misty GUI")
@@ -109,7 +72,7 @@ class MistyGUI:
         global misty
         misty = Robot(ip_address)
 
-        # Section 1: Timer
+        # Timer panel
         tk.Label(self.root, text="Timer", font=("Arial", 20)).pack(pady=(10,0))
         self.time_elapsed = 0
         self.running = False
@@ -122,7 +85,7 @@ class MistyGUI:
         self.update_time()
         ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
 
-        # Section 2: Speech Control Panel
+        # Speech control
         tk.Label(self.root, text="Speech Control Panel", font=("Arial", 18)).pack()
         eframe = tk.Frame(self.root); eframe.pack(pady=5)
         self.textbox = tk.Entry(eframe, width=60, font=("Arial", 10))
@@ -130,45 +93,28 @@ class MistyGUI:
         tk.Button(eframe, text="Speak", command=self.on_speak).grid(row=0, column=1, padx=5)
         tk.Button(eframe, text="Clear", command=self.text_erase).grid(row=0, column=2, padx=5)
 
-        # Scripted Messages
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Scripted Messages", font=("Arial", 14)).pack(pady=(0,5))
+        # Scripted messages
         sf = tk.Frame(self.root); sf.pack(pady=5)
-        tk.Button(sf, text="Intro", width=30, bg="#ade8f4",
-                  command=lambda: self.queue_speech(INTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=0, padx=5, pady=2)
-        tk.Button(sf, text="Outro", width=30, bg="#ffc8dd",
-                  command=lambda: self.queue_speech(OUTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=1, padx=5, pady=2)
+        tk.Button(sf, text="Intro", width=20, bg="#ade8f4",
+                  command=lambda: self.queue_speech(INTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=0, padx=5)
+        tk.Button(sf, text="Instructions", width=20, bg="#aaffaa",
+                  command=lambda: self.queue_speech(INSTRUCTION_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=1, padx=5)
+        tk.Button(sf, text="Outro", width=20, bg="#ffc8dd",
+                  command=lambda: self.queue_speech(OUTRO_MESSAGE, DEFAULT_EXPRESSION, DEFAULT_MOVEMENTS)).grid(row=0, column=2, padx=5)
 
-        # Narrative phrases
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Narrative Instruction", font=("Arial", 14)).pack(pady=(0,5))
+        # Narrative instruction
+        tk.Label(self.root, text="Narrative Instruction", font=("Arial", 14)).pack(pady=(10,5))
         nf = tk.Frame(self.root); nf.pack(pady=5)
         for idx, (msg, exp, moves) in enumerate(NARRATIVE_PHRASES, 1):
             tk.Button(nf, text=f"{idx}. {msg}", anchor='w', width=80,
                       command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
 
-        # Coaching phrases
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Coaching Instruction", font=("Arial", 14)).pack(pady=(0,5))
+        # Coaching instruction
+        tk.Label(self.root, text="Coaching Instruction", font=("Arial", 14)).pack(pady=(10,5))
         cf = tk.Frame(self.root); cf.pack(pady=5)
         for idx, (msg, exp, moves) in enumerate(COACHING_PHRASES, 1):
             tk.Button(cf, text=f"{idx}. {msg}", anchor='w', width=80,
                       command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
-
-        # Generic phrases
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=10)
-        tk.Label(self.root, text="Generic Instruction", font=("Arial", 14)).pack(pady=(0,5))
-        gf = tk.Frame(self.root); gf.pack(pady=5)
-        for idx, (msg, exp, moves) in enumerate(GENERIC_PHRASES, 1):
-            tk.Button(gf, text=f"{idx}. {msg}", anchor='w', width=80,
-                      command=lambda m=msg, e=exp, mv=moves: self.queue_speech(m, e, mv)).pack(pady=2)
-
-        # Section 3: Action Control Panel
-        ttk.Separator(self.root, orient='horizontal').pack(fill='x', pady=20)
-        tk.Label(self.root, text="Action Control Panel", font=("Arial", 18)).pack(pady=(0,5))
-        af = tk.Frame(self.root); af.pack(pady=5)
-        tk.Button(af, text="Move Head 1",
-                  command=lambda: self.queue_action("move_head_1")).grid(row=0, column=0, padx=5)
 
         self.root.mainloop()
 
@@ -181,27 +127,30 @@ class MistyGUI:
         threading.Thread(target=self._robot_speak, args=(phrase, expression, movements), daemon=True).start()
 
     def _robot_speak(self, phrase, expression, movements):
+        # Nod before speaking
+        try:
+            misty.move_head(15, 0, 0)
+            misty.move_head(-15, 0, 0)
+        except:
+            pass
         # Display expression
         try:
             misty.display_image(expression, expression, 0, 0)
-        except Exception as e:
-            print(f"Failed to display expression {expression}: {e}")
-        # Execute each movement (arms and head always)
+        except:
+            pass
+        # Slow speech if supported
+        try:
+            misty.set_text_to_speech_settings(stable_speech=True, rate=0.5)
+        except:
+            pass
+        # Execute default movements and then speak
         for mv in movements:
             try:
                 action, *args = mv
                 getattr(misty, action)(*args)
-            except Exception as e:
-                print(f"Failed to execute movement {mv}: {e}")
-        # Speak the phrase
+            except:
+                pass
         misty.speak(phrase)
-
-    def queue_action(self, phrase):
-        threading.Thread(target=self._robot_action, args=(phrase,), daemon=True).start()
-
-    def _robot_action(self, phrase):
-        if phrase == "move_head_1":
-            misty.move_head(-15, 0, 0, 80)
 
     def text_erase(self):
         self.textbox.delete(0, tk.END)
@@ -224,8 +173,8 @@ class MistyGUI:
         self.time_elapsed = 0
         self.time_display.config(text="0:00")
 
-# Run the GUI
 if __name__ == "__main__":
+
     if len(sys.argv) != 2:
         print("Usage: python3 study.py <Misty IP Address>")
         sys.exit(1)
