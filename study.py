@@ -18,7 +18,7 @@ DEFAULT_MOVEMENTS = [
 # Scripted intro, instruction, and outro messages
 INTRO_MESSAGE = "Hello! Let's solve a fun number puzzle together."
 INSTRUCTION_MESSAGE = (
-    "To play KenKen, pick a number and place it in each small box so it matches the number in the top left. "
+    "To play KenKen, pick a number and place it in each small box so it matches the number in the colored area. "
     "Remember, you can't use the same number twice in any row or column."
 )
 OUTRO_MESSAGE = "You did it! Thanks for playing with me today."
@@ -46,7 +46,7 @@ NARRATIVE_PHRASES = [
 # Coaching style: stern, focused on completion, 3 phases
 COACHING_PHRASES = [
     (
-        "Place numbers in each box. No hesitation.",
+        "Place numbers in each box now. No hesitation.",
         "e_Content.jpg",
         DEFAULT_MOVEMENTS
     ),
@@ -129,8 +129,10 @@ class MistyGUI:
     def _robot_speak(self, phrase, expression, movements):
         # Nod before speaking
         try:
-            misty.move_head(15, 0, 0)
-            misty.move_head(-15, 0, 0)
+            misty.move_head(60, 0, 0)
+            misty.move_head(-60, 0, 0)
+            misty.move_head(60, 0, 0)
+            time.sleep(0.1)
         except:
             pass
         # Display expression
@@ -138,19 +140,15 @@ class MistyGUI:
             misty.display_image(expression, expression, 0, 0)
         except:
             pass
-        # Slow speech if supported
-        try:
-            misty.set_text_to_speech_settings(stable_speech=True, rate=0.5)
-        except:
-            pass
-        # Execute default movements and then speak
+        # Execute default movements
         for mv in movements:
             try:
                 action, *args = mv
                 getattr(misty, action)(*args)
             except:
                 pass
-        misty.speak(phrase)
+        # Speak with reduced speed
+        misty.speak(text=phrase, speechRate=0.75)
 
     def text_erase(self):
         self.textbox.delete(0, tk.END)
@@ -174,7 +172,6 @@ class MistyGUI:
         self.time_display.config(text="0:00")
 
 if __name__ == "__main__":
-
     if len(sys.argv) != 2:
         print("Usage: python3 study.py <Misty IP Address>")
         sys.exit(1)
