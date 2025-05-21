@@ -46,18 +46,18 @@ NARRATIVE_PHRASES = [
 # Coaching style: stern, focused on completion, 3 phases
 COACHING_PHRASES = [
     (
-        "Place numbers in each box now. No hesitation.",
+        "Lock in those single cell cages first, grab the guaranteed points.",
         "e_Content.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
-        "Maintain momentum. Fill the next boxes without pausing.",
-        "e_Content.jpg",
+        "Target multi cell cages next, list valid combos, then place numbers decisively.",
+        "e_Joy.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
         "Complete the puzzle. Finish all boxes immediately.",
-        "e_Content.jpg",
+        "e_Admiration.jpg",
         DEFAULT_MOVEMENTS
     ),
 ]
