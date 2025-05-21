@@ -56,7 +56,7 @@ COACHING_PHRASES = [
         DEFAULT_MOVEMENTS
     ),
     (
-        "Complete the puzzle. Finish all boxes immediately.",
+        "You're almost done. Don't lose focus!",
         "e_Admiration.jpg",
         DEFAULT_MOVEMENTS
     ),
