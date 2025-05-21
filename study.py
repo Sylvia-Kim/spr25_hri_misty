@@ -32,7 +32,7 @@ NARRATIVE_PHRASES = [
         DEFAULT_MOVEMENTS
     ),
     (
-        "Great job! Keep going, you’re filling in the boxes one by one.",
+        "Great job! Keep going, you're filling in the boxes one by one.",
         "e_Joy.jpg",
         DEFAULT_MOVEMENTS
     ),
@@ -46,17 +46,17 @@ NARRATIVE_PHRASES = [
 # Coaching style: stern, focused on completion, 3 phases
 COACHING_PHRASES = [
     (
-        "Lock in those single cell cages first, grab the guaranteed points.",
+        "Lock in those single cell cages first. Grab the guaranteed points.",
         "e_Content.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
-        "Target multi cell cages next, list valid combos, then place numbers decisively.",
+        "List out your valid combinations, then place numbers decisively.",
         "e_Joy.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
-        "Complete the puzzle. Finish all boxes immediately.",
+        "Complete the puzzle. Tie up those loose ends.",
         "e_Admiration.jpg",
         DEFAULT_MOVEMENTS
     ),
