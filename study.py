@@ -18,8 +18,9 @@ DEFAULT_MOVEMENTS = [
 # Scripted intro, instruction, and outro messages
 INTRO_MESSAGE = "Hello! Let's solve a fun number puzzle together."
 INSTRUCTION_MESSAGE = (
-    "To play KenKen, pick a number and place it in each small box so it matches the number in the colored area. "
+    "To play KenKen, pick a number between 1 and 4, and place it in each small box so it matches the number in the top left corners. The solutions can be written unordered."
     "Remember, you can't use the same number twice in any row or column."
+    "You have 5 minutes, you may begin."
 )
 OUTRO_MESSAGE = "You did it! Thanks for playing with me today."
 
