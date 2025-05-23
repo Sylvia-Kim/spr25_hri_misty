@@ -28,17 +28,17 @@ OUTRO_MESSAGE = "You did it! Thanks for playing with me today."
 # Narrative style: encouraging and clear, 3 phases
 NARRATIVE_PHRASES = [
     (
-        "Welcome! Look at the outlined cages and put the right number in each box.",
+        "Mission start! Crack the single cell cages first to kick start your code-breaking run.",
         "e_Content.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
-        "Great job! Keep going, you're filling in the boxes one by one.",
+        "Great progress! You’re halfway through—keep cracking those cages to finish the puzzle.",
         "e_Joy.jpg",
         DEFAULT_MOVEMENTS
     ),
     (
-        "Awesome! Just a few more to finish your puzzle.",
+        "Critical alert! Thirty seconds left, save the puzzle!",
         "e_Admiration.jpg",
         DEFAULT_MOVEMENTS
     ),
